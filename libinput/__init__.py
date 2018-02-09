@@ -11,6 +11,7 @@ try:
 	from selectors import DefaultSelector, EVENT_READ
 except ImportError:
 	from selectors34 import DefaultSelector, EVENT_READ
+from .version import __version__
 from .define import Interface, Device
 from .constant import LogPriority
 from .event import Event

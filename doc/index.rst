@@ -1,20 +1,34 @@
-.. python-libinput documentation master file, created by
-   sphinx-quickstart on Wed Jan 31 06:10:15 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Introduction
+------------
 
-Welcome to python-libinput's documentation!
-===========================================
+This package is a pure python wrapper around *libinput* using ctypes.
+It provides high-level object oriented api, taking care of reference counting,
+memory management and the like automatically.
+
+*libinput* is a library that handles input devices for display servers and
+other applications that need to directly deal with input devices.
+It provides device detection, device handling, input device event processing
+and abstraction so minimize the amount of custom input code the user of
+libinput need to provide the common set of functionality that users expect.
+Input event processing includes scaling touch coordinates, generating pointer
+events from touchpads, pointer acceleration, etc.
+
+*libinput* does this by reading character files in ``/dev/input/``, so to use
+this package you need to run your code as root or to belong to ``input`` group.
+
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
+   install
+   usage
 
+.. toctree::
+   :caption: API
+   :maxdepth: 2
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   libinput
+   events
+   devices
+   constants
+   evcodes

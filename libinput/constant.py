@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-from enum import Enum, IntEnum, Flag, auto
+try:
+	from enum import Enum, IntEnum, Flag, auto
+except ImportError:
+	from aenum import Enum, IntEnum, Flag, auto
 
 
 class LogPriority(Enum):
@@ -157,6 +160,7 @@ class PointerAxis(Enum):
 
 class PointerAxisSource(Enum):
 
+	NONE = 0
 	WHEEL = 1
 	FINGER = auto()
 	CONTINUOUS = auto()

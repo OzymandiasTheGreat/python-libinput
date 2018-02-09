@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-from enum import Enum
+try:
+	from enum import Enum
+except ImportError:
+	from aenum import Enum
 
 
 class Type(Enum):
@@ -449,10 +452,6 @@ class Key(Enum):
 	KEY_ATTENDANT_OFF = 0x21c
 	KEY_ATTENDANT_TOGGLE = 0x21d
 	KEY_LIGHTS_TOGGLE = 0x21e
-	BTN_DPAD_UP = 0x220
-	BTN_DPAD_DOWN = 0x221
-	BTN_DPAD_LEFT = 0x222
-	BTN_DPAD_RIGHT = 0x223
 	KEY_ALS_TOGGLE = 0x230
 	KEY_BUTTONCONFIG = 0x240
 	KEY_TASKMANAGER = 0x241

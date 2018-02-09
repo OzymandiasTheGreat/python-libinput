@@ -37,35 +37,39 @@ class LibInput(object):
 	_libudev.udev_new.restype = c_void_p
 	_libudev.udev_unref.argtypes = (c_void_p,)
 	_libudev.udev_unref.restype = None
-	_libinput = CDLL('libinput.so.10')
-	_libinput.libinput_udev_create_context.argtypes = (
-		POINTER(Interface.Interface), c_void_p, c_void_p)
-	_libinput.libinput_udev_create_context.restype = c_void_p
-	_libinput.libinput_udev_assign_seat.argtypes = (c_void_p, c_char_p)
-	_libinput.libinput_udev_assign_seat.restype = c_int
-	_libinput.libinput_path_create_context.argtypes = (
-		POINTER(Interface.Interface), c_void_p)
-	_libinput.libinput_path_create_context.restype = c_void_p
-	_libinput.libinput_unref.argtypes = (c_void_p,)
-	_libinput.libinput_unref.restype = c_void_p
-	_libinput.libinput_log_set_handler.argtypes = (c_void_p, c_void_p)
-	_libinput.libinput_log_set_handler.restype = None
-	_libinput.libinput_log_set_priority.argtypes = (c_void_p, LogPriority)
-	_libinput.libinput_log_set_priority.restype = None
-	_libinput.libinput_get_fd.argtypes = (c_void_p,)
-	_libinput.libinput_get_fd.restype = c_int
-	_libinput.libinput_suspend.argtypes = (c_void_p,)
-	_libinput.libinput_suspend.restype = None
-	_libinput.libinput_resume.argtypes = (c_void_p,)
-	_libinput.libinput_resume.restype = c_int
-	_libinput.libinput_path_add_device.argtypes = (c_void_p, c_char_p)
-	_libinput.libinput_path_add_device.restype = c_void_p
-	_libinput.libinput_path_remove_device.argtypes = (c_void_p,)
-	_libinput.libinput_path_remove_device.restype = None
-	_libinput.libinput_dispatch.argtypes = (c_void_p,)
-	_libinput.libinput_dispatch.restype = c_int
-	_libinput.libinput_get_event.argtypes = (c_void_p,)
-	_libinput.libinput_get_event.restype = c_void_p
+	# This is necessary to build docs on RTD
+	try:
+		_libinput = CDLL('libinput.so.10')
+		_libinput.libinput_udev_create_context.argtypes = (
+			POINTER(Interface.Interface), c_void_p, c_void_p)
+		_libinput.libinput_udev_create_context.restype = c_void_p
+		_libinput.libinput_udev_assign_seat.argtypes = (c_void_p, c_char_p)
+		_libinput.libinput_udev_assign_seat.restype = c_int
+		_libinput.libinput_path_create_context.argtypes = (
+			POINTER(Interface.Interface), c_void_p)
+		_libinput.libinput_path_create_context.restype = c_void_p
+		_libinput.libinput_unref.argtypes = (c_void_p,)
+		_libinput.libinput_unref.restype = c_void_p
+		_libinput.libinput_log_set_handler.argtypes = (c_void_p, c_void_p)
+		_libinput.libinput_log_set_handler.restype = None
+		_libinput.libinput_log_set_priority.argtypes = (c_void_p, LogPriority)
+		_libinput.libinput_log_set_priority.restype = None
+		_libinput.libinput_get_fd.argtypes = (c_void_p,)
+		_libinput.libinput_get_fd.restype = c_int
+		_libinput.libinput_suspend.argtypes = (c_void_p,)
+		_libinput.libinput_suspend.restype = None
+		_libinput.libinput_resume.argtypes = (c_void_p,)
+		_libinput.libinput_resume.restype = c_int
+		_libinput.libinput_path_add_device.argtypes = (c_void_p, c_char_p)
+		_libinput.libinput_path_add_device.restype = c_void_p
+		_libinput.libinput_path_remove_device.argtypes = (c_void_p,)
+		_libinput.libinput_path_remove_device.restype = None
+		_libinput.libinput_dispatch.argtypes = (c_void_p,)
+		_libinput.libinput_dispatch.restype = c_int
+		_libinput.libinput_get_event.argtypes = (c_void_p,)
+		_libinput.libinput_get_event.restype = c_void_p
+	except OSError:
+		pass
 
 	def __init__(self, udev=False, grab=False, debug=False):
 		"""Initialize context.

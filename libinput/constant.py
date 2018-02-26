@@ -18,7 +18,13 @@ class LogPriority(Enum):
 		return self.value
 
 
-class Event(IntEnum):
+class ContextType(Enum):
+
+	PATH = auto()
+	UDEV = auto()
+
+
+class EventType(IntEnum):
 
 	NONE = 0
 

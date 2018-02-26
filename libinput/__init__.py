@@ -13,20 +13,17 @@ except ImportError:
 	from selectors34 import DefaultSelector, EVENT_READ
 from .version import __version__
 from .define import Interface, Device
-from .constant import LogPriority
-from .event import Event
+from .constant import LogPriority, ContextType, EventType
+from .event import PointerEvent, KeyboardEvent
 
 
 __all__ = ('LibInput', 'constant', 'evcodes')
 
 
 class LibInput(object):
-	"""Main class representing libinput context.
+	"""A base/factory class for libinput context.
 
 	Context is used to manage devices and get events.
-
-	Attributes:
-		udev (bool): A boolean indicating weather this context uses udev.
 	"""
 
 	_libc = CDLL('libc.so.6')
@@ -37,7 +34,9 @@ class LibInput(object):
 	_libudev.udev_new.restype = c_void_p
 	_libudev.udev_unref.argtypes = (c_void_p,)
 	_libudev.udev_unref.restype = None
-	# This is necessary to build docs on RTD
+	# libinput is not available on RTD so we prevent failing immediately
+	# when it's not available. Trying to instantiate the class will still
+	# throw an exception.
 	try:
 		_libinput = CDLL('libinput.so.10')
 		_libinput.libinput_udev_create_context.argtypes = (
@@ -68,16 +67,34 @@ class LibInput(object):
 		_libinput.libinput_dispatch.restype = c_int
 		_libinput.libinput_get_event.argtypes = (c_void_p,)
 		_libinput.libinput_get_event.restype = c_void_p
+		_libinput.libinput_event_get_type.argtypes = (c_void_p,)
+		_libinput.libinput_event_get_type.restype = EventType
+
+		_libinput.libinput_next_event_type.argtypes = (c_void_p,)
+		_libinput.libinput_next_event_type.restype = EventType
 	except OSError:
 		pass
 
-	def __init__(self, udev=False, grab=False, debug=False):
+	def __new__(cls, context_type=ContextType.PATH, grab=False, debug=False):
+
+		if context_type == ContextType.PATH:
+			return LibInputPath()
+		elif context_type == ContextType.UDEV:
+			return LibInputUdev()
+		else:
+			raise TypeError('Unsupported context type')
+
+	def __init__(self, context_type=ContextType.PATH, grab=False, debug=False):
 		"""Initialize context.
 
 		Args:
-			udev (bool): If true devices are added/removed from udev seat. If
-				false devices have to be added/removed manually.
+			context_type (~libinput.constant.ContextType): If
+				:attr:`~libinput.constant.ContextType.UDEV` devices are
+				added/removed from udev seat. If
+				:attr:`~libinput.constant.ContextType.PATH` devices have to be
+				added/removed manually.
 			grab (bool): If true get exclusive access to device(s).
+
 				Note:
 					Grabbing an already grabbed device raises :exc:`OSError`
 			debug (bool): If false, only errors are printed.
@@ -85,13 +102,11 @@ class LibInput(object):
 
 		self._selector = DefaultSelector()
 		self._interface = Interface()
-		if udev:
-			self.udev = True
+		if context_type == ContextType.UDEV:
 			self._udev = self._libudev.udev_new()
 			self._li = self._libinput.libinput_udev_create_context(
 				byref(self._interface), grab, self._udev)
-		else:
-			self.udev = False
+		elif context_type == ContextType.PATH:
 			self._li = self._libinput.libinput_path_create_context(
 				byref(self._interface), grab)
 		self._log_handler = lambda pr, strn: print(pr.name, ': ', strn)
@@ -106,8 +121,6 @@ class LibInput(object):
 
 		while self._libinput.libinput_unref(self._li):
 			pass
-		if self.udev:
-			self._libudev.udev_unref(self._udev)
 
 	def _set_default_log_handler(self):
 
@@ -160,34 +173,96 @@ class LibInput(object):
 		rc = self._libinput.libinput_resume(self._li)
 		assert rc == 0, 'Failed to resume current context'
 
-	def udev_assign_seat(self, seat):
-		"""Assign a seat to this libinput context.
+	def get_event(self, timeout=None):
+		"""Yield events from the internal libinput's queue.
 
-		New devices or the removal of existing devices will appear as events
-		when iterating over :meth:`get_event`.
+		Yields device events that are subclasses of
+		:class:`~libinput.event.Event`.
 
-		:meth:`udev_assign_seat` succeeds even if no input devices are
-		currently available on this seat, or if devices are available but fail
-		to open. Devices that do not have the minimum capabilities to be
-		recognized as pointer, keyboard or touch device are ignored. Such
-		devices and those that failed to open are ignored until the next call
-		to :meth:`resume`.
+		If *timeout* is positive number, the generator will only block for
+		*timeout* seconds when there are no events. If *timeout* is
+		:obj:`None` (default) the generator will block indefinitely.
 
-		Warning:
-			This method may only be called once per context.
 		Args:
-			seat (str): A seat identifier.
+			timeout (float): Seconds to block when there are no events.
+		Yields:
+			:class:`~libinput.event.Event`: A generic event.
 		"""
 
-		rc = self._libinput.libinput_udev_assign_seat(self._li, seat.encode())
-		assert rc == 0, 'Failed to assign {}'.format(seat)
+		if timeout:
+			start = monotonic()
+		while True:
+			events = self._selector.select(timeout=timeout)
+			for nevent in range(len(events) + 1):
+				self._libinput.libinput_dispatch(self._li)
+				hevent = self._libinput.libinput_get_event(self._li)
+				if hevent:
+					type_ = self._libinput.libinput_event_get_type(hevent)
+					self._libinput.libinput_dispatch(self._li)
+					if timeout:
+						start = monotonic()
+					if type_.is_pointer():
+						yield PointerEvent(hevent, self._libinput)
+					elif type_.is_keyboard():
+						yield KeyboardEvent(hevent, self._libinput)
+					elif type_.is_touch():
+						yield TouchEvent(hevent, self._libinput)
+					elif type_.is_gesture():
+						yield GestureEvent(hevent, self._libinput)
+					elif type_.is_tablet_tool():
+						yield TabletToolEvent(hevent, self._libinput)
+					elif type_.is_tablet_pad():
+						yield TabletPadEvent(hevent, self._libinput)
+					elif type_.is_switch():
+						yield SwitchEvent(hevent, self._libinput)
+					elif type_.is_device():
+						yield DeviceNotifyEvent(hevent, self._libinput)
+			if not events and timeout:
+				delta = monotonic() - start
+				if start >= timeout:
+					raise StopIteration(
+						'No events for {} seconds'.format(timeout))
 
-	def path_add_device(self, path):
-		"""Add a device to a libinput context initialized with udev=False.
+	def next_event_type(self):
+		"""Return the type of the next event in the internal queue.
+
+		This method does not pop the event off the queue and the next call
+		to :meth:`get_event` returns that event.
+
+		Returns:
+			~libinput.constant.EventType: The event type of the next available
+			event or :attr:`~libinput.constant.EventType.NONE` if no event
+			is available.
+		"""
+
+		return self._libinput.libinput_next_event_type(self._li)
+
+
+class LibInputPath(LibInput):
+	"""libinput path context.
+
+	For a context of this type, devices have to be added/removed manually with
+	:meth:`add_device` and :meth:`remove_device` respectively.
+
+	Note:
+		Do not instanciate this class directly, instead call :class:`.LibInput`
+		with ``context_type`` :attr:`~libinput.constant.ContextType.PATH`.
+	"""
+
+	def __new__(cls, *args, **kwargs):
+
+		return object.__new__(cls)
+
+	def __init__(self, *args, **kwargs):
+
+		LibInput.__init__(self, *args, **kwargs)
+
+	def add_device(self, path):
+		"""Add a device to a libinput context.
 
 		If successful, the device will be added to the internal list and
-		re-opened on :meth:`resume`. The device can be removed with
-		:meth:`path_remove_device`.
+		re-opened on :meth:`~libinput.LibInput.resume`. The device can be
+		removed with :meth:`remove_device`.
 		If the device was successfully initialized, it is returned.
 
 		Args:
@@ -202,12 +277,12 @@ class LibInput(object):
 			return Device(hdevice, self._libinput)
 		return None
 
-	def path_remove_device(self, device):
-		"""Remove a device from a libinput context initialized udev=False.
+	def remove_device(self, device):
+		"""Remove a device from a libinput context.
 
 		Events already processed from this input device are kept in the queue,
-		the :attr:`~libinput.constant.Event.DEVICE_REMOVED` event marks the end
-		of events for this device.
+		the :attr:`~libinput.constant.EventType.DEVICE_REMOVED` event marks
+		the end of events for this device.
 
 		If no matching device exists, this method does nothing.
 
@@ -217,38 +292,48 @@ class LibInput(object):
 
 		self._libinput.libinput_path_remove_device(device._handle)
 
-	def get_event(self, timeout=None):
-		"""Yield events from the internal libinput's queue.
 
-		Yields generic :class:`~libinput.event.Event`, to get get device
-		specific event objects call
-		:meth:`~libinput.event.Event.get_pointer_event` or similar.
+class LibInputUdev(LibInput):
+	"""libinput udev context.
 
-		If *timeout* is positive integer, the generator will only block for
-		*timeout* seconds when there are no events. If *timeout* is
-		:obj:`None` (default) the generator will block indefinitely.
+	For a context of this type, devices are added/removed automatically from
+	the assigned seat.
 
+	Note:
+		Do not instanciate this class directly, instead call :class:`.LibInput`
+		with ``context_type`` :attr:`~libinput.constant.ContextType.UDEV`.
+	"""
+
+	def __new__(cls, *args, **kwargs):
+
+		return object.__new__(cls)
+
+	def __init__(self, *args, **kwargs):
+
+		LibInput.__init__(self, *args, **kwargs)
+
+	def __del__(self):
+
+		self._libudev.udev_unref(self._udev)
+
+	def assign_seat(self, seat):
+		"""Assign a seat to this libinput context.
+
+		New devices or the removal of existing devices will appear as events
+		when iterating over :meth:`~libinput.LibInput.get_event`.
+
+		:meth:`assign_seat` succeeds even if no input devices are
+		currently available on this seat, or if devices are available but fail
+		to open. Devices that do not have the minimum capabilities to be
+		recognized as pointer, keyboard or touch device are ignored. Such
+		devices and those that failed to open are ignored until the next call
+		to :meth:`~libinput.LibInput.resume`.
+
+		Warning:
+			This method may only be called once per context.
 		Args:
-			timeout (int): Seconds to block when there are no events.
-		Yields:
-			:class:`~libinput.event.Event`: A generic event.
+			seat (str): A seat identifier.
 		"""
 
-		if timeout:
-			start = monotonic()
-		while True:
-			events = self._selector.select(timeout=timeout)
-			for nevent in range(len(events) + 1):
-				self._libinput.libinput_dispatch(self._li)
-				hevent = self._libinput.libinput_get_event(self._li)
-				if hevent:
-					event = Event(hevent, self._libinput)
-					self._libinput.libinput_dispatch(self._li)
-					if timeout:
-						start = monotonic()
-					yield event
-			if not events and timeout:
-				delta = monotonic() - start
-				if start >= timeout:
-					raise StopIteration(
-						'No events for {} seconds'.format(timeout))
+		rc = self._libinput.libinput_udev_assign_seat(self._li, seat.encode())
+		assert rc == 0, 'Failed to assign {}'.format(seat)

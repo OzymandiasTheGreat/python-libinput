@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 try:
-	from enum import Enum, IntEnum, Flag, auto
+	from enum import Enum, Flag, auto
 except ImportError:
-	from aenum import Enum, IntEnum, Flag, auto
+	from aenum import Enum, Flag, auto
 
 
 class LogPriority(Enum):
@@ -24,7 +24,7 @@ class ContextType(Enum):
 	UDEV = auto()
 
 
-class EventType(IntEnum):
+class EventType(Enum):
 
 	NONE = 0
 
@@ -68,39 +68,91 @@ class EventType(IntEnum):
 		return self.value
 
 	def is_device(self):
+		"""Macro to check if this event is
+		a :class:`~libinput.event.DeviceNotifyEvent`.
+		"""
 
-		return type(self).DEVICE_ADDED <= self < type(self).KEYBOARD_KEY
+		if self in {type(self).DEVICE_ADDED, type(self).DEVICE_REMOVED}:
+			return True
+		else:
+			return False
 
 	def is_keyboard(self):
+		"""Macro to check if this event is
+		a :class:`~libinput.event.KeyboardEvent`.
+		"""
 
-		return type(self).KEYBOARD_KEY <= self < type(self).POINTER_MOTION
+		if self in {type(self).KEYBOARD_KEY}:
+			return True
+		else:
+			return False
 
 	def is_pointer(self):
+		"""Macro to check if this event is
+		a :class:`~libinput.event.PointerEvent`.
+		"""
 
-		return type(self).POINTER_MOTION <= self < type(self).TOUCH_DOWN
+		if self in {type(self).POINTER_MOTION, type(self).POINTER_BUTTON,
+			type(self).POINTER_MOTION_ABSOLUTE, type(self).POINTER_AXIS}:
+			return True
+		else:
+			return False
 
 	def is_touch(self):
+		"""Macro to check if this event is
+		a :class:`~libinput.event.TouchEvent`.
+		"""
 
-		return type(self).TOUCH_DOWN <= self < type(self).TABLET_TOOL_AXIS
+		if self in {type(self).TOUCH_DOWN, type(self).TOUCH_UP,
+			type(self).TOUCH_MOTION, type(self).TOUCH_CANCEL,
+			type(self).TOUCH_FRAME}:
+			return True
+		else:
+			return False
 
 	def is_tablet_tool(self):
+		"""Macro to check if this event is
+		a :class:`~libinput.event.TabletToolEvent`.
+		"""
 
-		return (type(self).TABLET_TOOL_AXIS <= self
-			< type(self).TABLET_PAD_BUTTON)
+		if self in {type(self).TABLET_TOOL_AXIS, type(self).TABLET_TOOL_BUTTON,
+			type(self).TABLET_TOOL_PROXIMITY, type(self).TABLET_TOOL_TIP}:
+			return True
+		else:
+			return False
 
 	def is_tablet_pad(self):
+		"""Macro to check if this event is
+		a :class:`~libinput.event.TabletPadEvent`.
+		"""
 
-		return (type(self).TABLET_PAD_BUTTON <= self
-			< type(self).GESTURE_SWIPE_BEGIN)
+		if self in {type(self).TABLET_PAD_BUTTON, type(self).TABLET_PAD_RING,
+			type(self).TABLET_PAD_STRIP}:
+			return True
+		else:
+			return False
 
 	def is_gesture(self):
+		"""Macro to check if this event is
+		a :class:`~libinput.event.GestureEvent`.
+		"""
 
-		return (type(self).GESTURE_SWIPE_BEGIN <= self
-			< type(self).SWITCH_TOGGLE)
+		if self in {type(self).GESTURE_SWIPE_BEGIN, type(self).GESTURE_SWIPE_END,
+			type(self).GESTURE_SWIPE_UPDATE, type(self).GESTURE_PINCH_BEGIN,
+			type(self).GESTURE_PINCH_UPDATE, type(self).GESTURE_PINCH_END}:
+			return True
+		else:
+			return False
 
 	def is_switch(self):
+		"""Macro to check if this event is
+		a :class:`~libinput.event.SwitchEvent`.
+		"""
 
-		return self == type(self).SWITCH_TOGGLE
+		if self in {type(self).SWITCH_TOGGLE}:
+			return True
+		else:
+			return False
 
 
 class DeviceCapability(Enum):

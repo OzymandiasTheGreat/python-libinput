@@ -12,12 +12,13 @@ try:
 except ImportError:
 	from selectors34 import DefaultSelector, EVENT_READ
 from .version import __version__
-from .define import Interface, Device
+from .define import Interface
+from .device import Device
 from .constant import LogPriority, ContextType, EventType
 from .event import PointerEvent, KeyboardEvent
 
 
-__all__ = ('LibInput', 'constant', 'evcodes')
+__all__ = ('LibInput', 'constant')
 
 
 class LibInput(object):

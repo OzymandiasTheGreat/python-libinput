@@ -7,17 +7,8 @@ Devices and Seats
 .. _Static device configuration via udev: https://wayland.freedesktop.org/libinput/doc/latest/udev_config.html
 .. _Middle button emulation: https://wayland.freedesktop.org/libinput/doc/latest/middle_button_emulation.html
 .. _Disable-while-typing: https://wayland.freedesktop.org/libinput/doc/latest/palm_detection.html#disable-while-typing
-.. _Tracking unique tools: https://wayland.freedesktop.org/libinput/doc/latest/tablet-support.html#tablet-serial-numbers
-.. _Vendor-specific tablet tool types: https://wayland.freedesktop.org/libinput/doc/latest/tablet-support.html#tablet-tool-types
-.. _Tablet pad modes: https://wayland.freedesktop.org/libinput/doc/latest/tablet-support.html#tablet-pad-modes
 
-.. module:: libinput.define
-
-DeviceConfig
-~~~~~~~~~~~~
-
-.. autoclass:: DeviceConfig
-   :members:
+.. module:: libinput.device
 
 Device
 ~~~~~~
@@ -31,14 +22,38 @@ Seat
 .. autoclass:: Seat
    :members:
 
-TabletTool
-~~~~~~~~~~
+DeviceConfig
+~~~~~~~~~~~~
 
-.. autoclass:: TabletTool
+.. autoclass:: DeviceConfig
    :members:
 
-TabletPadModeGroup
-~~~~~~~~~~~~~~~~~~
+.. autoclass:: DeviceConfigTap
+   :members:
 
-.. autoclass:: TabletPadModeGroup
+.. autoclass:: DeviceConfigCalibration
+   :members:
+
+.. autoclass:: DeviceConfigSendEvents
+   :members:
+
+.. autoclass:: DeviceConfigAccel
+   :members:
+
+.. autoclass:: DeviceConfigScroll
+   :members:
+
+.. autoclass:: DeviceConfigLeftHanded
+   :members:
+
+.. autoclass:: DeviceConfigClick
+   :members:
+
+.. autoclass:: DeviceConfigMiddleEmulation
+   :members:
+
+.. autoclass:: DeviceConfigDwt
+   :members:
+
+.. autoclass:: DeviceConfigRotation
    :members:

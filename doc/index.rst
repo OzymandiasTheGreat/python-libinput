@@ -30,5 +30,11 @@ this package you need to run your code as root or to belong to ``input`` group.
    libinput
    events
    devices
+   misc
    constants
-   evcodes
+
+Contributors
+------------
+
+- Thanks to `Peter Hutterer <https://github.com/whot>`_ for his advice
+  on designing a pythonic API.

@@ -43,4 +43,5 @@ Getting/filtering events
    >>> for event in li.get_event():
    >>>     if event.type == constant.EventType.POINTER_MOTION:
    >>>         print(event.delta)
-   >>>             ...
+   (15, 76)
+   >>> ...

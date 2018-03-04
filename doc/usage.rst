@@ -6,9 +6,9 @@ Creating manual context
 
 ::
 
-   >>>from libinput import LibInput
+   >>>from libinput import LibInput, constant
 
-   >>> li = LibInput()
+   >>> li = LibInput(context_type=constant.ContextType.PATH)
    >>> device = li.path_add_device('/dev/input/event7')
    >>> li.path_remove_device(device)
 
@@ -16,25 +16,23 @@ Creating udev context
 ~~~~~~~~~~~~~~~~~~~~~
 
 udev context adds/removes devices from a given seat as they're physically
-added/removed. :meth:`LibInput.udev_assign_seat` should only be called once
+added/removed. :meth:`LibInputUdev.assign_seat` should only be called once
 per context.
 ::
 
-   >>> li = LibInput(udev=True)
-   >>> li.udev_assign_seat('seat0')
+   >>> li = LibInput(context_type=constant.ContextType.UDEV)
+   >>> li.assign_seat('seat0')
 
 Viewing device information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-   >>> device.get_name()
+   >>> device.name
    'SIGMACHIP Usb Mouse'
-   >>> from libinput.constant import DeviceCapability
-   >>> device.has_capability(DeviceCapability.POINTER)
+   >>> device.has_capability(constant.DeviceCapability.POINTER)
    True
-   >>> from libinput.evcodes import Button
-   >>> device.pointer_has_button(Button.BTN_LEFT)
+   >>> device.pointer_has_button(0x110) # BTN_LEFT
    True
 
 Getting/filtering events
@@ -42,11 +40,7 @@ Getting/filtering events
 
 ::
 
-   >>> from libinput.constant import Event
    >>> for event in li.get_event():
-   >>>     if event.type.is_pointer():
-   >>>         pointer_event = event.get_pointer_event()
-   >>>         if pointer_event.type == Event.POINTER_MOTION:
-   >>>             delta_x = pointer_event.get_dx()
-   >>>             delta_y = pointer_event.get_dy()
+   >>>     if event.type == constant.EventType.POINTER_MOTION:
+   >>>         print(event.delta)
    >>>             ...

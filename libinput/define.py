@@ -10,20 +10,20 @@ from ctypes import sizeof
 from .constant import TabletToolType
 
 
-_IOCPARM_MASK = 0x1FFF
-_IOC_IN = 0x40000000
+# ~ _IOCPARM_MASK = 0x1FFF
+# ~ _IOC_IN = 0x40000000
 
 
-def _IOW(magic, command, type_):
+# ~ def _IOW(magic, command, type_):
 
-	return (
-		(magic << 8)
-		| command
-		| ((sizeof(type_) & _IOCPARM_MASK) << 16)
-		| _IOC_IN)
+	# ~ return (
+		# ~ (magic << 8)
+		# ~ | command
+		# ~ | ((sizeof(type_) & _IOCPARM_MASK) << 16)
+		# ~ | _IOC_IN)
 
 
-EVIOCGRAB = _IOW(ord('E'), 0x90, c_int)
+# ~ EVIOCGRAB = _IOW(ord('E'), 0x90, c_int)
 
 
 class Interface(object):
@@ -44,8 +44,6 @@ class Interface(object):
 		def open_restricted(path, flags, user_data):
 
 			fd = os.open(path, flags)
-			if user_data:
-				ioctl(fd, EVIOCGRAB, 1)
 			return fd
 
 		CMPFUNC = CFUNCTYPE(c_int, c_char_p, c_int, c_void_p)

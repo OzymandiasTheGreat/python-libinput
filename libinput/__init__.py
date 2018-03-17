@@ -14,11 +14,26 @@ except ImportError:
 from .version import __version__
 from .define import Interface
 from .device import Device
-from .constant import LogPriority, ContextType, EventType
-from .event import PointerEvent, KeyboardEvent
+from .constant import LogPriority, ContextType, EventType, DeviceCapability
+from .constant import KeyState, Led, ButtonState, PointerAxis
+from .constant import PointerAxisSource, TabletPadRingAxisSource
+from .constant import TabletPadStripAxisSource, TabletToolType
+from .constant import TabletToolProximityState, TabletToolTipState, SwitchState
+from .constant import Switch, ConfigStatus, TapState, TapButtonMap, DragState
+from .constant import DragLockState, SendEventsMode, AccelProfile, ClickMethod
+from .constant import MiddleEmulationState, ScrollMethod, DwtState
+from .event import PointerEvent, KeyboardEvent, TouchEvent, GestureEvent
+from .event import TabletToolEvent, TabletPadEvent, SwitchEvent
+from .event import DeviceNotifyEvent
 
 
-__all__ = ('LibInput', 'constant')
+__all__ = ('LibInput', 'LogPriority', 'ContextType', 'EventType',
+	'DeviceCapability', 'KeyState', 'Led', 'ButtonState', 'PointerAxis',
+	'PointerAxisSource', 'TabletPadRingAxisSource', 'TabletPadStripAxisSource',
+	'TabletToolType', 'TabletToolProximityState', 'TabletToolTipState',
+	'SwitchState', 'Switch', 'ConfigStatus', 'TapState', 'TapButtonMap',
+	'DragState', 'DragLockState', 'SendEventsMode', 'AccelProfile',
+	'ClickMethod', 'MiddleEmulationState', 'ScrollMethod', 'DwtState')
 
 
 class LibInput(object):
@@ -76,7 +91,7 @@ class LibInput(object):
 	except OSError:
 		pass
 
-	def __new__(cls, context_type=ContextType.PATH, grab=False, debug=False):
+	def __new__(cls, context_type=ContextType.PATH, debug=False):
 
 		if context_type == ContextType.PATH:
 			return LibInputPath()
@@ -85,7 +100,7 @@ class LibInput(object):
 		else:
 			raise TypeError('Unsupported context type')
 
-	def __init__(self, context_type=ContextType.PATH, grab=False, debug=False):
+	def __init__(self, context_type=ContextType.PATH, debug=False):
 		"""Initialize context.
 
 		Args:
@@ -106,10 +121,10 @@ class LibInput(object):
 		if context_type == ContextType.UDEV:
 			self._udev = self._libudev.udev_new()
 			self._li = self._libinput.libinput_udev_create_context(
-				byref(self._interface), grab, self._udev)
+				byref(self._interface), None, self._udev)
 		elif context_type == ContextType.PATH:
 			self._li = self._libinput.libinput_path_create_context(
-				byref(self._interface), grab)
+				byref(self._interface), None)
 		self._log_handler = lambda pr, strn: print(pr.name, ': ', strn)
 		self._set_default_log_handler()
 		if debug:
@@ -174,34 +189,25 @@ class LibInput(object):
 		rc = self._libinput.libinput_resume(self._li)
 		assert rc == 0, 'Failed to resume current context'
 
-	def get_event(self, timeout=None):
+	@property
+	def events(self):
 		"""Yield events from the internal libinput's queue.
 
 		Yields device events that are subclasses of
 		:class:`~libinput.event.Event`.
 
-		If *timeout* is positive number, the generator will only block for
-		*timeout* seconds when there are no events. If *timeout* is
-		:obj:`None` (default) the generator will block indefinitely.
-
-		Args:
-			timeout (float): Seconds to block when there are no events.
 		Yields:
-			:class:`~libinput.event.Event`: A generic event.
+			:class:`~libinput.event.Event`: Device event.
 		"""
 
-		if timeout:
-			start = monotonic()
 		while True:
-			events = self._selector.select(timeout=timeout)
+			events = self._selector.select()
 			for nevent in range(len(events) + 1):
 				self._libinput.libinput_dispatch(self._li)
 				hevent = self._libinput.libinput_get_event(self._li)
 				if hevent:
 					type_ = self._libinput.libinput_event_get_type(hevent)
 					self._libinput.libinput_dispatch(self._li)
-					if timeout:
-						start = monotonic()
 					if type_.is_pointer():
 						yield PointerEvent(hevent, self._libinput)
 					elif type_.is_keyboard():
@@ -218,11 +224,6 @@ class LibInput(object):
 						yield SwitchEvent(hevent, self._libinput)
 					elif type_.is_device():
 						yield DeviceNotifyEvent(hevent, self._libinput)
-			if not events and timeout:
-				delta = monotonic() - start
-				if start >= timeout:
-					raise StopIteration(
-						'No events for {} seconds'.format(timeout))
 
 	def next_event_type(self):
 		"""Return the type of the next event in the internal queue.

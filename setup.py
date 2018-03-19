@@ -13,7 +13,8 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as fd:
 
 
 classifiers = [
-	'Development Status :: 5 - Production/Stable',
+	# ~ 'Development Status :: 5 - Production/Stable',
+	'Development Status :: 4 - Beta',
 	'Intended Audience :: Developers',
 	'License :: OSI Approved :: MIT License',
 	'Operating System :: POSIX :: Linux',
@@ -36,5 +37,5 @@ setup(
 	package_dir={'libinput': 'libinput'},
 	install_requires=[
 		'aenum;python_version<"3.6"',
-		'selectors34;python_version<"3.4"',
-		'monotonic;python_version<"3.3"'])
+		'selectors34;python_version<"3.4"'])
+		# ~ 'monotonic;python_version<"3.3"'])

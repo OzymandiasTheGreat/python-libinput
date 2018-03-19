@@ -16,6 +16,15 @@ Device
 .. autoclass:: Device
    :members:
 
+.. autoclass:: DevicePointer
+   :members:
+
+.. autoclass:: DeviceKeyboard
+   :members:
+
+.. autoclass:: DeviceTabletPad
+   :members:
+
 Seat
 ~~~~
 

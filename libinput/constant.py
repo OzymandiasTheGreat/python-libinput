@@ -26,7 +26,7 @@ class ContextType(Enum):
 
 class EventType(Enum):
 
-	NONE = 0
+	# ~ NONE = 0
 
 	DEVICE_ADDED = auto()
 	DEVICE_REMOVED = auto()

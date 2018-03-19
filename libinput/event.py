@@ -158,7 +158,7 @@ class PointerEvent(Event):
 
 		For pointer events that are not of type
 		:attr:`~libinput.constant.EventType.POINTER_MOTION`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		If a device employs pointer acceleration, the delta
 		returned by this method is the accelerated delta.
@@ -170,11 +170,11 @@ class PointerEvent(Event):
 		Returns:
 			(float, float): The relative (x, y) movement since the last event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.POINTER_MOTION, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.POINTER_MOTION:
+			raise AttributeError(_wrong_prop.format(self.type))
 		delta_x = self._libinput.libinput_event_pointer_get_dx(self._handle)
 		delta_y = self._libinput.libinput_event_pointer_get_dy(self._handle)
 		return delta_x, delta_y
@@ -186,7 +186,7 @@ class PointerEvent(Event):
 
 		For pointer events that are not of type
 		:attr:`~libinput.constant.EventType.POINTER_MOTION`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Relative unaccelerated motion deltas are raw device coordinates. Note
 		that these coordinates are subject to the device's native resolution.
@@ -201,11 +201,11 @@ class PointerEvent(Event):
 			(float, float): The unaccelerated relative (x, y) movement since
 			the last event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.POINTER_MOTION, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.POINTER_MOTION:
+			raise AttributeError(_wrong_prop.format(self.type))
 		delta_x = self._libinput.libinput_event_pointer_get_dx_unaccelerated(
 			self._handle)
 		delta_y = self._libinput.libinput_event_pointer_get_dy_unaccelerated(
@@ -222,16 +222,16 @@ class PointerEvent(Event):
 
 		For pointer events that are not of type
 		:attr:`~libinput.constant.EventType.POINTER_MOTION_ABSOLUTE`,
-		this property raises :exc:`AssertionError`.
+		this property raises :exc:`AttributeError`.
 
 		Returns:
 			(float, float): The current absolute coordinates.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.POINTER_MOTION_ABSOLUTE, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.POINTER_MOTION_ABSOLUTE:
+			raise AttributeError(_wrong_prop.format(self.type))
 		abs_x = self._libinput.libinput_event_pointer_get_absolute_x(
 			self._handle)
 		abs_y = self._libinput.libinput_event_pointer_get_absolute_y(
@@ -244,7 +244,7 @@ class PointerEvent(Event):
 
 		For pointer events that are not of type
 		:attr:`~libinput.constant.EventType.POINTER_MOTION_ABSOLUTE`,
-		this method raises :exc:`AssertionError`.
+		this method raises :exc:`AttributeError`.
 
 		Args:
 			width (int): The current output screen width.
@@ -252,10 +252,12 @@ class PointerEvent(Event):
 		Returns:
 			(float, float): The current absolute (x, y) coordinates transformed
 			to a screen coordinates.
+		Raises:
+			AttributeError
 		"""
 
-		assert self.type == EventType.POINTER_MOTION_ABSOLUTE, \
-			_wrong_meth.format(self.type)
+		if self.type != EventType.POINTER_MOTION_ABSOLUTE:
+			raise AttributeError(_wrong_meth.format(self.type))
 		abs_x = self._libinput \
 			.libinput_event_pointer_get_absolute_x_transformed(
 				self._handle, width)
@@ -270,16 +272,16 @@ class PointerEvent(Event):
 
 		For pointer events that are not of type
 		:attr:`~libinput.constant.EventType.POINTER_BUTTON`,
-		this property raises :exc:`AssertionError`.
+		this property raises :exc:`AttributeError`.
 
 		Returns:
 			int: The button triggering this event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.POINTER_BUTTON, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.POINTER_BUTTON:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_pointer_get_button(self._handle)
 
 	@property
@@ -288,17 +290,17 @@ class PointerEvent(Event):
 
 		For pointer events that are not of type
 		:attr:`~libinput.constant.EventType.POINTER_BUTTON`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			~libinput.constant.ButtonState: The button state triggering this
 			event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.POINTER_BUTTON, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.POINTER_BUTTON:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_pointer_get_button_state(
 			self._handle)
 
@@ -317,8 +319,8 @@ class PointerEvent(Event):
 			AssertionError
 		"""
 
-		assert self.type == EventType.POINTER_BUTTON, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.POINTER_BUTTON:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_pointer_get_seat_button_count(
 			self._handle)
 
@@ -330,18 +332,18 @@ class PointerEvent(Event):
 
 		For pointer events that are not of type
 		:attr:`~libinput.constant.EventType.POINTER_AXIS`, this method raises
-		:exc:`AssertionError`.
+		:exc:`AttributeError`.
 
 		Args:
 			axis (~libinput.constant.PointerAxis): The axis to check.
 		Returns:
 			bool: True if this event contains a value for this axis.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.POINTER_AXIS, \
-			_wrong_meth.format(self.type)
+		if self.type != EventType.POINTER_AXIS:
+			raise AttributeError(_wrong_meth.format(self.type))
 		return self._libinput.libinput_event_pointer_has_axis(
 			self._handle, axis)
 
@@ -360,18 +362,18 @@ class PointerEvent(Event):
 
 		For pointer events that are not of type
 		:attr:`~libinput.constant.Event.POINTER_AXIS`, this method raises
-		:exc:`AssertionError`.
+		:exc:`AttributeError`.
 
 		Args:
 			axis (~libinput.constant.PointerAxis): The axis who's value to get.
 		Returns:
 			float: The axis value of this event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.POINTER_AXIS, \
-			_wrong_meth.format(self.type)
+		if self.type != EventType.POINTER_AXIS:
+			raise AttributeError(_wrong_meth.format(self.type))
 		return self._libinput.libinput_event_pointer_get_axis_value(
 			self._handle, axis)
 
@@ -412,17 +414,17 @@ class PointerEvent(Event):
 
 		For pointer events that are not of type
 		:attr:`~libinput.constant.Event.POINTER_AXIS`, this property raises
-		:exc:`AssertionError`.
+		:exc:`AttributeError`.
 
 		Returns:
 			~libinput.constant.PointerAxisSource: The source for this axis
 			event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.POINTER_AXIS, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.POINTER_AXIS:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_pointer_get_axis_source(
 			self._handle)
 
@@ -443,11 +445,11 @@ class PointerEvent(Event):
 		Returns:
 			float: The discrete value for the given event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.POINTER_AXIS, \
-			_wrong_meth.format(self.type)
+		if self.type != EventType.POINTER_AXIS:
+			raise AttributeError(_wrong_meth.format(self.type))
 		return self._libinput.libinput_event_pointer_get_axis_value_discrete(
 			self._handle, axis)
 
@@ -582,16 +584,16 @@ class TouchEvent(Event):
 		:attr:`~libinput.constant.EventType.TOUCH_UP`,
 		:attr:`~libinput.constant.EventType.TOUCH_MOTION` or
 		:attr:`~libinput.constant.EventType.TOUCH_CANCEL`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			int: The slot of this touch event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type.is_touch() and self.type != EventType.TOUCH_FRAME, \
-			_wrong_prop.format(self.type)
+		if self.type == EventType.TOUCH_FRAME:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_touch_get_slot(self._handle)
 
 	@property
@@ -616,8 +618,8 @@ class TouchEvent(Event):
 			AssertionError
 		"""
 
-		assert self.type.is_touch() and self.type != EventType.TOUCH_FRAME, \
-			_wrong_prop.format(self.type)
+		if self.type == EventType.TOUCH_FRAME:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_touch_get_seat_slot(self._handle)
 
 	@property
@@ -630,16 +632,16 @@ class TouchEvent(Event):
 
 		For events not of type :attr:`~libinput.constant.EventType.TOUCH_DOWN`,
 		:attr:`~libinput.constant.EventType.TOUCH_MOTION`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			(float, float): The current absolute (x, y) coordinates.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type in (EventType.TOUCH_DOWN, EventType.TOUCH_MOTION), \
-			_wrong_prop.format(self.type)
+		if self.type not in {EventType.TOUCH_DOWN, EventType.TOUCH_MOTION}:
+			raise AttributeError(_wrong_prop.format(self.type))
 		x = self._libinput.libinput_event_touch_get_x(self._handle)
 		y = self._libinput.libinput_event_touch_get_y(self._handle)
 		return x, y
@@ -650,7 +652,7 @@ class TouchEvent(Event):
 
 		For events not of type :attr:`~libinput.constant.EventType.TOUCH_DOWN`,
 		:attr:`~libinput.constant.EventType.TOUCH_MOTION`, this method
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Args:
 			width (int): The current output screen width.
@@ -660,8 +662,8 @@ class TouchEvent(Event):
 			to screen coordinates.
 		"""
 
-		assert self.type in (EventType.TOUCH_DOWN, EventType.TOUCH_MOTION), \
-			_wrong_meth.format(self.type)
+		if self.type not in {EventType.TOUCH_DOWN, EventType.TOUCH_MOTION}:
+			raise AttributeError(_wrong_meth.format(self.type))
 		x = self._libinput.libinput_event_touch_get_x_transformed(
 			self._handle, width)
 		y = self._libinput.libinput_event_touch_get_y_transformed(
@@ -753,16 +755,17 @@ class GestureEvent(Event):
 		For gesture events that are not of type
 		:attr:`~libinput.constant.EventType.GESTURE_SWIPE_END` or
 		:attr:`~libinput.constant.EventType.GESTURE_PINCH_END`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			bool: :obj:`True` indicating that the gesture was cancelled.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type in (EventType.GESTURE_SWIPE_END,
-			EventType.GESTURE_PINCH_END), _wrong_prop.format(self.type)
+		if self.type not in {EventType.GESTURE_SWIPE_END,
+				EventType.GESTURE_PINCH_END}:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_gesture_get_cancelled(self._handle)
 
 	@property
@@ -772,7 +775,7 @@ class GestureEvent(Event):
 		For gesture events that are not of type
 		:attr:`~libinput.constant.EventType.GESTURE_SWIPE_UPDATE` or
 		:attr:`~libinput.constant.EventType.GESTURE_PINCH_UPDATE`, this
-		property raises :exc:`AssertionError`.
+		property raises :exc:`AttributeError`.
 
 		If a device employs pointer acceleration, the delta returned by this
 		property is the accelerated delta.
@@ -785,8 +788,9 @@ class GestureEvent(Event):
 			(float, float): The relative (x, y) movement since the last event.
 		"""
 
-		assert self.type in (EventType.GESTURE_SWIPE_UPDATE,
-			EventType.GESTURE_PINCH_UPDATE), _wrong_prop.format(self.type)
+		if self.type not in {EventType.GESTURE_SWIPE_UPDATE,
+				EventType.GESTURE_PINCH_UPDATE}:
+			raise AttributeError(_wrong_prop.format(self.type))
 		delta_x = self._libinput.libinput_event_gesture_get_dx(self._handle)
 		delta_y = self._libinput.libinput_event_gesture_get_dy(self._handle)
 		return delta_x, delta_y
@@ -799,7 +803,7 @@ class GestureEvent(Event):
 		For gesture events that are not of type
 		:attr:`~libinput.constant.EventType.GESTURE_SWIPE_UPDATE` or
 		:attr:`~libinput.constant.EventType.GESTURE_PINCH_UPDATE`, this
-		property raises :exc:`AssertionError`.
+		property raises :exc:`AttributeError`.
 
 		Relative unaccelerated motion deltas are normalized to represent those
 		of a device with 1000dpi resolution. See
@@ -808,15 +812,16 @@ class GestureEvent(Event):
 		as read from the device.
 
 		Any rotation applied to the device also applies to gesture motion
-		(see :meth:`~libinput.define.Device.config_rotation_set_angle`).
+		(see :meth:`~libinput.define.DeviceConfigRotation.set_angle`).
 
 		Returns:
 			(float, float): The unaccelerated relative (x, y) movement since
 			the last event.
 		"""
 
-		assert self.type in (EventType.GESTURE_SWIPE_UPDATE,
-			EventType.GESTURE_PINCH_UPDATE), _wrong_prop.format(self.type)
+		if self.type not in {EventType.GESTURE_SWIPE_UPDATE,
+				EventType.GESTURE_PINCH_UPDATE}:
+			raise AttributeError(_wrong_prop.format(self.type))
 		delta_x = self._libinput.libinput_event_gesture_get_dx_unaccelerated(
 			self._handle)
 		delta_y = self._libinput.libinput_event_gesture_get_dy_unaccelerated(
@@ -843,17 +848,17 @@ class GestureEvent(Event):
 		:attr:`~libinput.constant.EventType.GESTURE_PINCH_UPDATE` event
 		(if any) or 1.0 otherwise.
 
-		For all other events this property raises :exc:`AssertionError`.
+		For all other events this property raises :exc:`AttributeError`.
 
 		Returns:
 			float: The absolute scale of a pinch gesture.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type in (EventType.GESTURE_PINCH_BEGIN,
-			EventType.GESTURE_PINCH_UPDATE, EventType.GESTURE_PINCH_END), \
-			_wrong_prop.format(self.type)
+		if self.type not in {EventType.GESTURE_PINCH_BEGIN,
+				EventType.GESTURE_PINCH_UPDATE, EventType.GESTURE_PINCH_END}:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_gesture_get_scale(self._handle)
 
 	@property
@@ -863,7 +868,7 @@ class GestureEvent(Event):
 
 		For gesture events that are not of type
 		:attr:`~libinput.constant.EventType.GESTURE_PINCH_UPDATE`, this
-		property raises :exc:`AssertionError`.
+		property raises :exc:`AttributeError`.
 
 		The angle delta is defined as the change in angle of the line formed
 		by the 2 fingers of a pinch gesture. Clockwise rotation is represented
@@ -879,11 +884,11 @@ class GestureEvent(Event):
 		Returns:
 			float: The angle delta since the last event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.GESTURE_PINCH_UPDATE, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.GESTURE_PINCH_UPDATE:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_gesture_get_angle_delta(
 			self._handle)
 
@@ -1032,138 +1037,10 @@ class TabletToolEvent(Event):
 			self._hevent)
 
 	@property
-	def coords_have_changed(self):
-		"""Check if the (x, y) axes were updated in this event.
-
-		For events that are not of type
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_AXIS`,
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_TIP`,
-		or :attr:`~libinput.constant.EventType.TABLET_TOOL_PROXIMITY`,
-		this property is :obj:`False`.
-
-		Returns:
-			bool: :obj:`True` if the axes were updated or :obj:`False`
-			otherwise.
-		"""
-
-		x_changed = self._libinput.libinput_event_tablet_tool_x_has_changed(
-			self._handle)
-		y_changed = self._libinput.libinput_event_tablet_tool_y_has_changed(
-			self._handle)
-		return x_changed or y_changed
-
-	@property
-	def pressure_has_changed(self):
-		"""Check if the pressure axis was updated in this event.
-
-		For events that are not of type
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_AXIS`,
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_TIP`,
-		or :attr:`~libinput.constant.EventType.TABLET_TOOL_PROXIMITY`, this
-		property is :obj:`False`.
-
-		Returns:
-			bool: :obj:`True` if the axis was updated or :obj:`False` otherwise.
-		"""
-
-		return self._libinput.libinput_event_tablet_tool_pressure_has_changed(
-			self._handle)
-
-	@property
-	def distance_has_changed(self):
-		"""Check if the distance axis was updated in this event.
-
-		For events that are not of type
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_AXIS`,
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_TIP`,
-		or :attr:`~libinput.constant.EventType.TABLET_TOOL_PROXIMITY`, this
-		property is :obj:`False`. For tablet tool events of type
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_PROXIMITY`, this
-		property is always :obj:`True`.
-
-		Returns:
-			bool: :obj:`True` if the axis was updated or :obj:`False` otherwise.
-		"""
-
-		return self._libinput.libinput_event_tablet_tool_distance_has_changed(
-			self._handle)
-
-	@property
-	def tilt_has_changed(self):
-		"""Check if the tilt axes were updated in this event.
-
-		For events that are not of type
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_AXIS`,
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_TIP`,
-		or :attr:`~libinput.constant.EventType.TABLET_TOOL_PROXIMITY`, this
-		property is :obj:`False`.
-
-		Returns:
-			bool: :obj:`True` if the axes were updated or :obj:`False`
-			otherwise.
-		"""
-
-		tilt_x = self._libinput.libinput_event_tablet_tool_tilt_x_has_changed(
-			self._handle)
-		tilt_y = self._libinput.libinput_event_tablet_tool_tilt_y_has_changed(
-			self._handle)
-		return tilt_x or tilt_y
-
-	@property
-	def rotation_has_changed(self):
-		"""Check if the z-rotation axis was updated in this event.
-
-		For events that are not of type
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_AXIS`,
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_TIP`,
-		or :attr:`~libinput.constant.EventType.TABLET_TOOL_PROXIMITY`, this
-		property is :obj:`False`.
-
-		Returns:
-			bool: :obj:`True` if the axis was updated or :obj:`False` otherwise.
-		"""
-
-		return self._libinput.libinput_event_tablet_tool_rotation_has_changed(
-			self._handle)
-
-	@property
-	def slider_has_changed(self):
-		"""Check if the slider axis was updated in this event.
-
-		For events that are not of type
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_AXIS`,
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_TIP`,
-		or :attr:`~libinput.constant.EventType.TABLET_TOOL_PROXIMITY`, this
-		property is :obj:`False`.
-
-		Returns:
-			bool: :obj:`True` if the axis was updated or :obj:`False` otherwise.
-		"""
-
-		return self._libinput.libinput_event_tablet_tool_slider_has_changed(
-			self._handle)
-
-	@property
-	def wheel_has_changed(self):
-		"""Check if the wheel axis was updated in this event.
-
-		For events that are not of type
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_AXIS`,
-		:attr:`~libinput.constant.EventType.TABLET_TOOL_TIP`,
-		or :attr:`~libinput.constant.EventType.TABLET_TOOL_PROXIMITY`, this
-		property is :obj:`False`.
-
-		Returns:
-			bool: :obj:`True` if the axis was updated or :obj:`False` otherwise.
-		"""
-
-		return self._libinput.libinput_event_tablet_tool_wheel_has_changed(
-			self._handle)
-
-	@property
 	def coords(self):
 		"""The (X, Y) coordinates of the tablet tool, in mm from
-		the top left corner of the tablet in its current logical orientation.
+		the top left corner of the tablet in its current logical orientation
+		and whether they have changed in this event.
 
 		Use :meth:`transform_coords` for transforming the axes values into
 		a different coordinate space.
@@ -1173,12 +1050,17 @@ class TabletToolEvent(Event):
 			the width of the device. See `Out-of-bounds motion events`_
 			for more details.
 		Returns:
-			(float, float): The current values of the the axes.
+			((float, float), bool): The current values of the the axes and
+			whether they have changed.
 		"""
 
+		x_changed = self._libinput.libinput_event_tablet_tool_x_has_changed(
+			self._handle)
+		y_changed = self._libinput.libinput_event_tablet_tool_y_has_changed(
+			self._handle)
 		x = self._libinput.libinput_event_tablet_tool_get_x(self._handle)
 		y = self._libinput.libinput_event_tablet_tool_get_y(self._handle)
-		return x, y
+		return (x, y), x_changed or y_changed
 
 	@property
 	def delta(self):
@@ -1202,35 +1084,45 @@ class TabletToolEvent(Event):
 	@property
 	def pressure(self):
 		"""The current pressure being applied on the tool in use,
-		normalized to the range [0, 1].
+		normalized to the range [0, 1] and whether it has changed in this event.
 
-		If this axis does not exist on the current tool, this property is 0.
+		If this axis does not exist on the current tool, this property is
+		(0, :obj:`False`).
 
 		Returns:
-			float: The current value of the the axis.
+			(float, bool): The current value of the the axis and whether it has
+			changed.
 		"""
 
-		return self._libinput.libinput_event_tablet_tool_get_pressure(
+		pressure = self._libinput.libinput_event_tablet_tool_get_pressure(
 			self._handle)
+		changed = self._libinput. \
+			libinput_event_tablet_tool_pressure_has_changed(self._handle)
+		return pressure, changed
 
 	@property
 	def distance(self):
 		"""The current distance from the tablet's sensor,
-		normalized to the range [0, 1].
+		normalized to the range [0, 1] and whether it has changed in this event.
 
-		If this axis does not exist on the current tool, this property is 0.
+		If this axis does not exist on the current tool, this property is
+		(0, :obj:`False`).
 
 		Returns:
-			float: The current value of the the axis.
+			(float, bool): The current value of the the axis.
 		"""
 
-		return self._libinput.libinput_event_tablet_tool_get_distance(
+		distance = self._libinput.libinput_event_tablet_tool_get_distance(
 			self._handle)
+		changed = self._libinput. \
+			libinput_event_tablet_tool_distance_has_changed(self._handle)
+		return distance, changed
 
 	@property
 	def tilt_axes(self):
 		"""The current tilt along the (X, Y) axes of the tablet's
-		current logical orientation, in degrees off the tablet's Z axis.
+		current logical orientation, in degrees off the tablet's Z axis
+		and whether they have changed in this event.
 
 		That is, if the tool is perfectly orthogonal to the tablet,
 		the tilt angle is 0. When the top tilts towards the logical top/left
@@ -1239,22 +1131,28 @@ class TabletToolEvent(Event):
 		are positive.
 
 		If these axes do not exist on the current tool, this property returns
-		(0, 0).
+		((0, 0), :obj:`False`).
 
 		Returns:
-			(float, float): The current value of the axes in degrees.
+			((float, float), bool): The current value of the axes in degrees
+			and whether it has changed.
 		"""
 
 		tilt_x = self._libinput.libinput_event_tablet_tool_get_tilt_x(
 			self._handle)
 		tilt_y = self._libinput.libinput_event_tablet_tool_get_tilt_y(
 			self._handle)
-		return tilt_x, tilt_y
+		x_changed = self._libinput. \
+			libinput_event_tablet_tool_tilt_x_has_changed(self._handle)
+		y_changed = self._libinput. \
+			libinput_event_tablet_tool_tilt_y_has_changed(self._handle)
+		return (tilt_x, tilt_y), x_changed or y_changed
 
 	@property
 	def rotation(self):
 		"""The current Z rotation of the tool in degrees, clockwise
-		from the tool's logical neutral position.
+		from the tool's logical neutral position and whether it has changed
+		in this event.
 
 		For tools of type :attr:`~libinput.constant.TabletToolType.MOUSE`
 		and :attr:`~libinput.constant.TabletToolType.LENS` the logical
@@ -1263,60 +1161,79 @@ class TabletToolEvent(Event):
 		:attr:`~libinput.constant.TabletToolType.BRUSH`, the logical
 		neutral position is with the buttons pointing up.
 
-		If this axis does not exist on the current tool, this property is 0.
+		If this axis does not exist on the current tool, this property is
+		(0, :obj:`False`).
 
 		Returns:
-			float: The current value of the the axis.
+			(float, bool): The current value of the the axis and whether it has
+			changed.
 		"""
 
-		return self._libinput.libinput_event_tablet_tool_get_rotation(
+		rotation = self._libinput.libinput_event_tablet_tool_get_rotation(
 			self._handle)
+		changed = self._libinput. \
+			libinput_event_tablet_tool_rotation_has_changed(self._handle)
+		return rotation, changed
 
 	@property
 	def slider_position(self):
 		"""The current position of the slider on the tool,
-		normalized to the range [-1, 1].
+		normalized to the range [-1, 1] and whether it has changed in this
+		event.
 
 		The logical zero is the neutral position of the slider, or
 		the logical center of the axis. This axis is available on e.g.
 		the Wacom Airbrush.
 
-		If this axis does not exist on the current tool, this property is 0.
+		If this axis does not exist on the current tool, this property is
+		(0, :obj:`False`).
 
 		Returns:
-			float: The current value of the the axis.
+			(float, bool): The current value of the the axis.
 		"""
 
-		return self._libinput.libinput_event_tablet_tool_get_slider_position(
+		position = self._libinput. \
+			libinput_event_tablet_tool_get_slider_position(self._handle)
+		changed = self._libinput.libinput_event_tablet_tool_slider_has_changed(
 			self._handle)
+		return position, changed
 
 	@property
 	def wheel_delta(self):
-		"""The delta for the wheel in degrees.
+		"""The delta for the wheel in degrees and whether it has changed in
+		this event.
 
 		Returns:
-			float: The delta of the wheel, in degrees, compared to
-			the last event.
+			(float, bool): The delta of the wheel, in degrees, compared to
+			the last event and whether it has changed.
 		"""
 
-		return self._libinput.libinput_event_tablet_tool_get_wheel_delta(
+		delta = self._libinput.libinput_event_tablet_tool_get_wheel_delta(
 			self._handle)
+		changed = self._libinput.libinput_event_tablet_tool_wheel_has_changed(
+			self._handle)
+		return delta, changed
 
 	@property
 	def wheel_delta_discrete(self):
-		"""The delta for the wheel in discrete steps (e.g. wheel clicks).
+		"""The delta for the wheel in discrete steps (e.g. wheel clicks) and
+		whether it has changed in this event.
 
 		Returns:
-			int: The delta of the wheel, in discrete steps, compared to
-			the last event.
+			(int, bool): The delta of the wheel, in discrete steps, compared to
+			the last event and whether it has changed.
 		"""
 
-		return self._libinput. \
+		delta =  self._libinput. \
 			libinput_event_tablet_tool_get_wheel_delta_discrete(self._handle)
+		changed = self._libinput.libinput_event_tablet_tool_wheel_has_changed(
+			self._handle)
+		return delta, changed
 
 	def transform_coords(self, width, height):
 		"""Return the current absolute (x, y) coordinates of
-		the tablet tool event, transformed to screen coordinates.
+		the tablet tool event, transformed to screen coordinates and
+		whether they have changed in this event.
 
 		Note:
 			On some devices, returned value may be negative or larger than
@@ -1326,15 +1243,19 @@ class TabletToolEvent(Event):
 			width (int): The current output screen width.
 			height (int): The current output screen height.
 		Returns:
-			(float, float): The current absolute (x, y) coordinates transformed
-			to screen coordinates.
+			((float, float), bool): The current absolute (x, y) coordinates
+			transformed to screen coordinates and whether they have changed.
 		"""
 
 		x = self._libinput.libinput_event_tablet_tool_get_x_transformed(
 			self._handle, width)
 		y = self._libinput.libinput_event_tablet_tool_get_y_transformed(
 			self._handle, height)
-		return x, y
+		x_changed = self._libinput.libinput_event_tablet_tool_x_has_changed(
+			self._handle)
+		y_changed = self._libinput.libinput_event_tablet_tool_y_has_changed(
+			self._handle)
+		return (x, y), x_changed or y_changed
 
 	@property
 	def tool(self):
@@ -1396,14 +1317,14 @@ class TabletToolEvent(Event):
 
 		For events that are not of type
 		:attr:`~libinput.constant.EventType.TABLET_TOOL_BUTTON`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			int: The button triggering this event.
 		"""
 
-		assert self.type == EventType.TABLET_TOOL_BUTTON, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_TOOL_BUTTON:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_tool_get_button(
 			self._handle)
 
@@ -1413,15 +1334,15 @@ class TabletToolEvent(Event):
 
 		For events that are not of type
 		:attr:`~libinput.constant.EventType.TABLET_TOOL_BUTTON`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			~libinput.constant.ButtonState: The button state triggering
 			this event.
 		"""
 
-		assert self.type == EventType.TABLET_TOOL_BUTTON, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_TOOL_BUTTON:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_tool_get_button_state(
 			self._handle)
 
@@ -1432,14 +1353,14 @@ class TabletToolEvent(Event):
 
 		For events that are not of type
 		:attr:`~libinput.constant.EventType.TABLET_TOOL_BUTTON`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			int: The seat wide pressed button count for the key of this event.
 		"""
 
-		assert self.type == EventType.TABLET_TOOL_BUTTON, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_TOOL_BUTTON:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_tool_get_seat_button_count(
 			self._handle)
 
@@ -1534,17 +1455,17 @@ class TabletPadEvent(Event):
 
 		For events not of type
 		:attr:`~libinput.constant.EventType.TABLET_PAD_RING`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			float: The current value of the the axis. -1 if the finger was
 			lifted.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.TABLET_PAD_RING, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_PAD_RING:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_pad_get_ring_position(
 			self._handle)
 
@@ -1565,8 +1486,8 @@ class TabletPadEvent(Event):
 			AssertionError
 		"""
 
-		assert self.type == EventType.TABLET_PAD_RING, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_PAD_RING:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_pad_get_ring_number(
 			self._handle)
 
@@ -1581,17 +1502,17 @@ class TabletPadEvent(Event):
 
 		For events not of type
 		:attr:`~libinput.constant.EventType.TABLET_PAD_RING`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			~libinput.constant.TabletPadRingAxisSource: The source of the ring
 			interaction.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.TABLET_PAD_RING, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_PAD_RING:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_pad_get_ring_source(
 			self._handle)
 
@@ -1609,17 +1530,17 @@ class TabletPadEvent(Event):
 
 		For events not of type
 		:attr:`~libinput.constant.EventType.TABLET_PAD_STRIP`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			float: The current value of the the axis. -1 if the finger was
 			lifted.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.TABLET_PAD_STRIP, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_PAD_STRIP:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_pad_get_strip_position(
 			self._handle)
 
@@ -1632,16 +1553,16 @@ class TabletPadEvent(Event):
 
 		For events not of type
 		:attr:`~libinput.constant.EventType.TABLET_PAD_STRIP`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			int: The index of the strip that changed state.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.TABLET_PAD_STRIP, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_PAD_STRIP:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_pad_get_strip_number(
 			self._handle)
 
@@ -1655,17 +1576,17 @@ class TabletPadEvent(Event):
 
 		For events not of type
 		:attr:`~libinput.constant.EventType.TABLET_PAD_STRIP`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			~libinput.constant.TabletPadStripAxisSource: The source of
 			the strip interaction.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.TABLET_PAD_STRIP, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_PAD_STRIP:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_pad_get_strip_source(
 			self._handle)
 
@@ -1675,7 +1596,7 @@ class TabletPadEvent(Event):
 
 		For events that are not of type
 		:attr:`~libinput.constant.Event.TABLET_PAD_BUTTON`,
-		this property raises :exc:`AssertionError`.
+		this property raises :exc:`AttributeError`.
 
 		Note that the number returned is a generic sequential button number
 		and not a semantic button code as defined in ``linux/input.h``.
@@ -1684,11 +1605,11 @@ class TabletPadEvent(Event):
 		Returns:
 			int: The button triggering this event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.TABLET_PAD_BUTTON, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_PAD_BUTTON:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_pad_get_button_number(
 			self._handle)
 
@@ -1698,17 +1619,17 @@ class TabletPadEvent(Event):
 
 		For events not of type
 		:attr:`~libinput.constant.EventType.TABLET_PAD_BUTTON`, this property
-		raises :exc:`AssertionError`.
+		raises :exc:`AttributeError`.
 
 		Returns:
 			~libinput.constant.ButtonState: The button state triggering
 			this event.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
-		assert self.type == EventType.TABLET_PAD_BUTTON, \
-			_wrong_prop.format(self.type)
+		if self.type != EventType.TABLET_PAD_BUTTON:
+			raise AttributeError(_wrong_prop.format(self.type))
 		return self._libinput.libinput_event_tablet_pad_get_button_state(
 			self._handle)
 

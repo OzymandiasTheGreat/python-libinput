@@ -3,10 +3,10 @@
 from __future__ import absolute_import, print_function
 from ctypes import CDLL, POINTER, byref, CFUNCTYPE, create_string_buffer
 from ctypes import c_int, c_char_p, c_void_p
-try:
-	from time import monotonic
-except ImportError:
-	from monotonic import monotonic
+# ~ try:
+	# ~ from time import monotonic
+# ~ except ImportError:
+	# ~ from monotonic import monotonic
 try:
 	from selectors import DefaultSelector, EVENT_READ
 except ImportError:
@@ -87,7 +87,7 @@ class LibInput(object):
 		_libinput.libinput_event_get_type.restype = EventType
 
 		_libinput.libinput_next_event_type.argtypes = (c_void_p,)
-		_libinput.libinput_next_event_type.restype = EventType
+		_libinput.libinput_next_event_type.restype = c_int
 	except OSError:
 		pass
 
@@ -109,10 +109,6 @@ class LibInput(object):
 				added/removed from udev seat. If
 				:attr:`~libinput.constant.ContextType.PATH` devices have to be
 				added/removed manually.
-			grab (bool): If true get exclusive access to device(s).
-
-				Note:
-					Grabbing an already grabbed device raises :exc:`OSError`
 			debug (bool): If false, only errors are printed.
 		"""
 
@@ -181,9 +177,6 @@ class LibInput(object):
 		"""Resume a suspended libinput context.
 
 		This re-enables device monitoring and adds existing devices.
-
-		Warning:
-			Resuming udev context before assigning seat causes segfault.
 		"""
 
 		rc = self._libinput.libinput_resume(self._li)
@@ -229,15 +222,18 @@ class LibInput(object):
 		"""Return the type of the next event in the internal queue.
 
 		This method does not pop the event off the queue and the next call
-		to :meth:`get_event` returns that event.
+		to :attr:`events` returns that event.
 
 		Returns:
 			~libinput.constant.EventType: The event type of the next available
-			event or :attr:`~libinput.constant.EventType.NONE` if no event
-			is available.
+			event or :obj:`None` if no event is available.
 		"""
 
-		return self._libinput.libinput_next_event_type(self._li)
+		type_ = self._libinput.libinput_next_event_type(self._li)
+		if type_ == 0:
+			return None
+		else:
+			return EventType(type_)
 
 
 class LibInputPath(LibInput):

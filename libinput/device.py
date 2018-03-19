@@ -1649,37 +1649,14 @@ class Device(BaseDevice):
 		self._libinput.libinput_device_get_size.argtypes = (
 			c_void_p, POINTER(c_double), POINTER(c_double))
 		self._libinput.libinput_device_get_size.restype = c_int
-		self._libinput.libinput_device_pointer_has_button.argtypes = (
-			c_void_p, c_uint32)
-		self._libinput.libinput_device_pointer_has_button.restype = c_int
-		self._libinput.libinput_device_keyboard_has_key.argtypes = (
-			c_void_p, c_uint32)
-		self._libinput.libinput_device_keyboard_has_key.restype = c_int
-		self._libinput.libinput_device_tablet_pad_get_num_buttons.argtypes = (
-			c_void_p,)
-		self._libinput.libinput_device_tablet_pad_get_num_buttons.restype = (
-			c_int)
-		self._libinput.libinput_device_tablet_pad_get_num_rings.argtypes = (
-			c_void_p,)
-		self._libinput.libinput_device_tablet_pad_get_num_rings.restype = c_int
-		self._libinput.libinput_device_tablet_pad_get_num_strips.argtypes = (
-			c_void_p,)
-		self._libinput.libinput_device_tablet_pad_get_num_strips.restype = (
-			c_int)
-		self._libinput \
-			.libinput_device_tablet_pad_get_num_mode_groups.argtypes = (
-				c_void_p,)
-		self._libinput \
-			.libinput_device_tablet_pad_get_num_mode_groups.restype = c_int
-		self._libinput.libinput_device_tablet_pad_get_mode_group.argtypes = (
-			c_void_p, c_uint)
-		self._libinput.libinput_device_tablet_pad_get_mode_group.restype = (
-			c_void_p)
 
 		self._libinput.libinput_device_ref(self._handle)
 
 		hseat = self._libinput.libinput_device_get_seat(self._handle)
 		self._seat = Seat(hseat, self._libinput)
+		self._pointer = DevicePointer(self._handle, self._libinput)
+		self._keyboard = DeviceKeyboard(self._handle, self._libinput)
+		self._tablet_pad = DeviceTabletPad(self._handle, self._libinput)
 		self._config = DeviceConfig(self._handle, self._libinput)
 
 	def __del__(self):
@@ -1819,19 +1796,19 @@ class Device(BaseDevice):
 
 		self._libinput.libinput_device_led_update(self._handle, leds)
 
-	def has_capability(self, capability):
-		"""Check if the given device has the specified capability.
+	@property
+	def capabilities(self):
+		"""A tuple of capabilities this device supports.
 
-		Args:
-			capability (~libinput.constant.DeviceCapability): A capability
-			to check for.
 		Returns:
-			bool: :obj:`True` if the given device has the capability or
-			:obj:`False` otherwise.
+			(~libinput.constant.DeviceCapability): Device capabilities.
 		"""
 
-		return self._libinput.libinput_device_has_capability(
-			self._handle, capability)
+		caps = []
+		for cap in DeviceCapability:
+			if self._libinput.libinput_device_has_capability(self._handle, cap):
+				caps.append(cap)
+		return tuple(caps)
 
 	@property
 	def size(self):
@@ -1854,9 +1831,66 @@ class Device(BaseDevice):
 		assert rc == 0, 'This device does not provide size information'
 		return width.value, height.value
 
-	def pointer_has_button(self, button):
-		"""Check if a :attr:`~libinput.constant.DeviceCapability.POINTER`
-		device has a given button.
+	@property
+	def pointer(self):
+		"""Methods specific to a device with
+		:attr:`~libinput.constant.DeviceCapability.POINTER` capability.
+
+		Returns:
+			.DevicePointer:
+		"""
+
+		return self._pointer
+
+	@property
+	def keyboard(self):
+		"""Methods specific to a device with
+		:attr:`~libinput.constant.DeviceCapability.KEYBOARD` capability.
+
+		Returns:
+			.DeviceKeyboard:
+		"""
+
+		return self._keyboard
+
+	@property
+	def tablet_pad(self):
+		"""Methods specific to a device with
+		:attr:`~libinput.constant.DeviceCapability.TABLET_PAD` capability.
+
+		Returns:
+			.DeviceTabletPad:
+		"""
+
+		return self._tablet_pad
+
+	@property
+	def config(self):
+		"""Device configuration.
+
+		Returns:
+			.DeviceConfig: An object providing device configuration methods.
+		"""
+
+		return self._config
+
+
+class DevicePointer(BaseDevice):
+	"""Methods specific to a device with
+	:attr:`~libinput.constant.DeviceCapability.POINTER` capability.
+	"""
+
+	def __init__(self, *args):
+
+		BaseDevice.__init__(self, *args)
+
+		self._libinput.libinput_device_pointer_has_button.argtypes = (
+			c_void_p, c_uint32)
+		self._libinput.libinput_device_pointer_has_button.restype = c_int
+
+
+	def has_button(self, button):
+		"""Check if this device has a given button.
 
 		Args:
 			button (int): Button to check for, see ``input.h`` for button
@@ -1873,7 +1907,21 @@ class Device(BaseDevice):
 		assert rc >= 0, 'This device is not a pointer device'
 		return bool(rc)
 
-	def keyboard_has_key(self, key):
+
+class DeviceKeyboard(BaseDevice):
+	"""Methods specific to a device with
+	:attr:`~libinput.constant.DeviceCapability.KEYBOARD` capability.
+	"""
+
+	def __init__(self, *args):
+
+		BaseDevice.__init__(self, *args)
+
+		self._libinput.libinput_device_keyboard_has_key.argtypes = (
+			c_void_p, c_uint32)
+		self._libinput.libinput_device_keyboard_has_key.restype = c_int
+
+	def has_key(self, key):
 		"""Check if a :attr:`~libinput.constant.DeviceCapability.KEYBOARD`
 		device has a given key.
 
@@ -1890,8 +1938,40 @@ class Device(BaseDevice):
 		assert rc >= 0, 'This device is not a keyboard device'
 		return bool(rc)
 
-	def tablet_pad_get_num_buttons(self):
-		"""Return the number of buttons on a device with
+
+class DeviceTabletPad(BaseDevice):
+	"""Methods specific to a device with
+	:attr:`~libinput.constant.DeviceCapability.TABLET_PAD` capability.
+	"""
+
+	def __init__(self, *args):
+
+		BaseDevice.__init__(self, *args)
+
+		self._libinput.libinput_device_tablet_pad_get_num_buttons.argtypes = (
+			c_void_p,)
+		self._libinput.libinput_device_tablet_pad_get_num_buttons.restype = (
+			c_int)
+		self._libinput.libinput_device_tablet_pad_get_num_rings.argtypes = (
+			c_void_p,)
+		self._libinput.libinput_device_tablet_pad_get_num_rings.restype = c_int
+		self._libinput.libinput_device_tablet_pad_get_num_strips.argtypes = (
+			c_void_p,)
+		self._libinput.libinput_device_tablet_pad_get_num_strips.restype = (
+			c_int)
+		self._libinput \
+			.libinput_device_tablet_pad_get_num_mode_groups.argtypes = (
+				c_void_p,)
+		self._libinput \
+			.libinput_device_tablet_pad_get_num_mode_groups.restype = c_int
+		self._libinput.libinput_device_tablet_pad_get_mode_group.argtypes = (
+			c_void_p, c_uint)
+		self._libinput.libinput_device_tablet_pad_get_mode_group.restype = (
+			c_void_p)
+
+	@property
+	def num_buttons(self):
+		"""The number of buttons on a device with
 		the :attr:`~libinput.constant.DeviceCapability.TABLET_PAD` capability.
 
 		Buttons on a pad device are numbered sequentially, see
@@ -1900,47 +1980,53 @@ class Device(BaseDevice):
 		Returns:
 			int: The number of buttons supported by the device.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
 		num = self._libinput.libinput_device_tablet_pad_get_num_buttons(
 			self._handle)
-		assert num >= 0, 'This device is not a tablet pad device'
+		if num < 0:
+			raise AttributeError('This device is not a tablet pad device')
 		return num
 
-	def tablet_pad_get_num_rings(self):
-		"""Return the number of rings a device with
+	@property
+	def num_rings(self):
+		"""The number of rings a device with
 		the :attr:`~libinput.constant.DeviceCapability.TABLET_PAD`
 		capability provides.
 
 		Returns:
 			int: The number of rings or 0 if the device has no rings.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
 		num = self._libinput.libinput_device_tablet_pad_get_num_rings(
 			self._handle)
-		assert num >= 0, 'This device is not a tablet pad device'
+		if num < 0:
+			raise AttributeError('This device is not a tablet pad device')
 		return num
 
-	def tablet_pad_get_num_strips(self):
-		"""Return the number of strips a device with
+	@property
+	def num_strips(self):
+		"""The number of strips a device with
 		the :attr:`~libinput.constant.DeviceCapability.TABLET_PAD`
 		capability provides.
 
 		Returns:
 			int: The number of strips or 0 if the device has no strips.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
 		num = self._libinput.libinput_device_tablet_pad_get_num_strips(
 			self._handle)
-		assert num >= 0, 'This device is not a tablet pad device'
+		if num < 0:
+			raise AttributeError('This device is not a tablet pad device')
 		return num
 
-	def tablet_pad_get_num_mode_groups(self):
+	@property
+	def num_mode_groups(self):
 		"""Most devices only provide a single mode group, however devices
 		such as the Wacom Cintiq 22HD provide two mode groups.
 
@@ -1953,15 +2039,16 @@ class Device(BaseDevice):
 		Returns:
 			int: The number of mode groups available on this device.
 		Raises:
-			AssertionError
+			AttributeError
 		"""
 
 		num = self._libinput.libinput_device_tablet_pad_get_num_mode_groups(
 			self._handle)
-		assert num >= 0, 'This device is not a tablet pad device'
+		if num < 0:
+			raise AttributeError('This device is not a tablet pad device')
 		return num
 
-	def tablet_pad_get_mode_group(self, group):
+	def get_mode_group(self, group):
 		"""While a reference is kept by the caller, the returned mode group
 		will compare equal with mode group returned by each subsequent call of
 		this method with the same index and mode group returned from
@@ -1980,16 +2067,6 @@ class Device(BaseDevice):
 		if hmodegroup:
 			return TabletPadModeGroup(hmodegroup, self._libinput)
 		return None
-
-	@property
-	def config(self):
-		"""Device configuration.
-
-		Returns:
-			.DeviceConfig: An object providing device configuration methods.
-		"""
-
-		return self._config
 
 
 class Seat(object):

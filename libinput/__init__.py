@@ -194,29 +194,30 @@ class LibInput(object):
 		"""
 
 		while True:
-			events = self._selector.select()
-			for nevent in range(len(events) + 1):
-				self._libinput.libinput_dispatch(self._li)
+			self._selector.select()
+			self._libinput.libinput_dispatch(self._li)
+			while True:
 				hevent = self._libinput.libinput_get_event(self._li)
-				if hevent:
-					type_ = self._libinput.libinput_event_get_type(hevent)
-					self._libinput.libinput_dispatch(self._li)
-					if type_.is_pointer():
-						yield PointerEvent(hevent, self._libinput)
-					elif type_.is_keyboard():
-						yield KeyboardEvent(hevent, self._libinput)
-					elif type_.is_touch():
-						yield TouchEvent(hevent, self._libinput)
-					elif type_.is_gesture():
-						yield GestureEvent(hevent, self._libinput)
-					elif type_.is_tablet_tool():
-						yield TabletToolEvent(hevent, self._libinput)
-					elif type_.is_tablet_pad():
-						yield TabletPadEvent(hevent, self._libinput)
-					elif type_.is_switch():
-						yield SwitchEvent(hevent, self._libinput)
-					elif type_.is_device():
-						yield DeviceNotifyEvent(hevent, self._libinput)
+				if not hevent:
+					break
+				type_ = self._libinput.libinput_event_get_type(hevent)
+				self._libinput.libinput_dispatch(self._li)
+				if type_.is_pointer():
+					yield PointerEvent(hevent, self._libinput)
+				elif type_.is_keyboard():
+					yield KeyboardEvent(hevent, self._libinput)
+				elif type_.is_touch():
+					yield TouchEvent(hevent, self._libinput)
+				elif type_.is_gesture():
+					yield GestureEvent(hevent, self._libinput)
+				elif type_.is_tablet_tool():
+					yield TabletToolEvent(hevent, self._libinput)
+				elif type_.is_tablet_pad():
+					yield TabletPadEvent(hevent, self._libinput)
+				elif type_.is_switch():
+					yield SwitchEvent(hevent, self._libinput)
+				elif type_.is_device():
+					yield DeviceNotifyEvent(hevent, self._libinput)
 
 	def next_event_type(self):
 		"""Return the type of the next event in the internal queue.

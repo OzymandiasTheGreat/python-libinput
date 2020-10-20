@@ -1,3 +1,20 @@
+-----------------
+
+MAINTAINER WANTED
+-----------------
+
+This project started out as a small side project,
+that I needed for other things I was working on.
+
+However I've come to realize I have neither time, interest nor hardware
+required to maintain python bindings for something as big as libinput.
+
+So, if you use this project, know a little C and think you could take over,
+make a couple pull requests fixing some of the outstanding bugs
+and we'll arrange for you to take over.
+
+-----------------
+
 libinput
 --------
 

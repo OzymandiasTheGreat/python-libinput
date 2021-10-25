@@ -37,7 +37,9 @@ class EventType(Enum):
 	POINTER_MOTION_ABSOLUTE = auto()
 	POINTER_BUTTON = auto()
 	POINTER_AXIS = auto()
-	POINTER_SCROLLWHEEL = auto()
+	POINTER_SCROLL_WHEEL = auto()
+	POINTER_SCROLL_FINGER = auto()
+	POINTER_SCROLL_CONTINUOUS = auto()
 
 	TOUCH_DOWN = 500
 	TOUCH_UP = auto()
@@ -60,6 +62,8 @@ class EventType(Enum):
 	GESTURE_PINCH_BEGIN = auto()
 	GESTURE_PINCH_UPDATE = auto()
 	GESTURE_PINCH_END = auto()
+	GESTURE_HOLD_BEGIN = auto()
+	GESTURE_HOLD_END = auto()
 
 	SWITCH_TOGGLE = 900
 
@@ -94,7 +98,8 @@ class EventType(Enum):
 		"""
 
 		if self in {type(self).POINTER_MOTION, type(self).POINTER_BUTTON,
-			type(self).POINTER_MOTION_ABSOLUTE, type(self).POINTER_AXIS}:
+			type(self).POINTER_MOTION_ABSOLUTE, type(self).POINTER_AXIS,
+			type(self).POINTER_SCROLL_WHEEL,type(self).POINTER_SCROLL_CONTINUOUS}:
 			return True
 		else:
 			return False

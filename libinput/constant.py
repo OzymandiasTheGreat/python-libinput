@@ -37,6 +37,7 @@ class EventType(Enum):
 	POINTER_MOTION_ABSOLUTE = auto()
 	POINTER_BUTTON = auto()
 	POINTER_AXIS = auto()
+	POINTER_SCROLLWHEEL = auto()
 
 	TOUCH_DOWN = 500
 	TOUCH_UP = auto()

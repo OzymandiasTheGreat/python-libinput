@@ -145,7 +145,8 @@ class EventType(Enum):
 
 		if self in {type(self).GESTURE_SWIPE_BEGIN, type(self).GESTURE_SWIPE_END,
 			type(self).GESTURE_SWIPE_UPDATE, type(self).GESTURE_PINCH_BEGIN,
-			type(self).GESTURE_PINCH_UPDATE, type(self).GESTURE_PINCH_END}:
+			type(self).GESTURE_PINCH_UPDATE, type(self).GESTURE_PINCH_END,
+			type(self).GESTURE_HOLD_END,type(self).GESTURE_HOLD_BEGIN}:
 			return True
 		else:
 			return False

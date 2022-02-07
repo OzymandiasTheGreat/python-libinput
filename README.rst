@@ -9,9 +9,10 @@ that I needed for other things I was working on.
 However I've come to realize I have neither time, interest nor hardware
 required to maintain python bindings for something as big as libinput.
 
-So, if you use this project, know a little C and think you could take over,
-make a couple pull requests fixing some of the outstanding bugs
-and we'll arrange for you to take over.
+So, if you use this project, know a little C and think you could take over...
+Drop me a line and we'll talk about it.
+
+Until then I'm archiving this repo.
 
 -----------------
 

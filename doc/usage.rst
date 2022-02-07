@@ -6,7 +6,7 @@ Creating manual context
 
 ::
 
-   >>>from libinput import LibInput, ContextType, EventType
+   >>> from libinput import LibInput, ContextType, EventType
 
    >>> li = LibInput(context_type=ContextType.PATH)
    >>> device = li.path_add_device('/dev/input/event7')
